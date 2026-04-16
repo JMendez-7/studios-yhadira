@@ -238,13 +238,13 @@ export const SOCIAL_LINKS = [
     id: "instagram",
     label: "Instagram",
     icon: "Instagram",
-    url: "https://instagram.com/studiosyhadira",
+    url: "https://www.instagram.com/studio_yhadira?igsh=YTAyMG5ndTh5ZGx2",
   },
   {
     id: "facebook",
     label: "Facebook",
     icon: "Facebook",
-    url: "https://facebook.com/studiosyhadira",
+    url: "https://www.facebook.com/yhadira.zuzunaga",
   },
   {
     id: "tiktok",
