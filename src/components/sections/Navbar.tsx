@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, MessageCircle } from "lucide-react";
+import { Menu, X, Calendar } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { NAV_LINKS, WHATSAPP_URL } from "@/lib/constants";
+import { NAV_LINKS } from "@/lib/constants";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -82,10 +82,8 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {/* Divider */}
             <div className="w-px h-6 bg-[#e0d8d4]" />
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/reservar"
               className="
                 inline-flex items-center gap-2
                 px-5 py-2.5 rounded-full text-sm font-semibold text-white
@@ -95,9 +93,9 @@ export default function Navbar() {
                 transition-all duration-200
               "
             >
-              <MessageCircle size={15} />
+              <Calendar size={15} />
               Reservar
-            </a>
+            </Link>
           </div>
 
           {/* Mobile hamburger */}
@@ -145,10 +143,8 @@ export default function Navbar() {
                 );
               })}
               <div className="pt-3 mt-2 border-t border-[#e0d8d4]/60">
-                <a
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/reservar"
                   onClick={() => setMobileOpen(false)}
                   className="
                     inline-flex items-center gap-2
@@ -157,9 +153,9 @@ export default function Navbar() {
                     shadow-[0_4px_16px_rgba(184,0,73,0.28)]
                   "
                 >
-                  <MessageCircle size={15} />
-                  Reservar Cita por WhatsApp
-                </a>
+                  <Calendar size={15} />
+                  Reservar Cita
+                </Link>
               </div>
             </div>
           </motion.div>
