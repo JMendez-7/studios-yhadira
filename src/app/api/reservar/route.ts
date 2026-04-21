@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY!;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID!;
-const AIRTABLE_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}`;
 
-async function airtableFetch(path: string, options: RequestInit = {}) {
-  const res = await fetch(`${AIRTABLE_URL}${path}`, {
+async function airtableFetch(table: string, options: RequestInit = {}) {
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(table)}`;
+  const res = await fetch(url, {
     ...options,
     headers: {
       Authorization: `Bearer ${AIRTABLE_API_KEY}`,
@@ -15,35 +15,9 @@ async function airtableFetch(path: string, options: RequestInit = {}) {
   });
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Airtable error: ${err}`);
+    throw new Error(`Airtable error (${table}): ${err}`);
   }
   return res.json();
-}
-
-async function findOrCreateCliente(nombre: string, telefono: string, email?: string) {
-  // Buscar cliente existente por teléfono
-  const search = await airtableFetch(
-    `/Clientes?filterByFormula=${encodeURIComponent(`{Teléfono}='${telefono}'`)}&maxRecords=1`
-  );
-
-  if (search.records?.length > 0) {
-    return search.records[0].id;
-  }
-
-  // Crear nuevo cliente
-  const created = await airtableFetch("/Clientes", {
-    method: "POST",
-    body: JSON.stringify({
-      fields: {
-        Nombre: nombre,
-        Teléfono: telefono,
-        ...(email ? { Email: email } : {}),
-        "Primera visita": new Date().toISOString().split("T")[0],
-      },
-    }),
-  });
-
-  return created.id;
 }
 
 export async function POST(req: NextRequest) {
@@ -54,15 +28,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Faltan campos requeridos" }, { status: 400 });
     }
 
-    // 1. Buscar o crear cliente
-    const clienteId = await findOrCreateCliente(nombre, telefono, email);
-
-    // 2. Crear cita
-    await airtableFetch("/Citas", {
+    // 1. Crear cliente
+    const cliente = await airtableFetch("Clientes", {
       method: "POST",
       body: JSON.stringify({
         fields: {
-          Cliente: [clienteId],
+          Nombre: nombre,
+          ...(telefono ? { "Teléfono": telefono } : {}),
+          ...(email ? { Email: email } : {}),
+          "Primera visita": new Date().toISOString().split("T")[0],
+        },
+      }),
+    });
+
+    // 2. Crear cita vinculada al cliente
+    await airtableFetch("Citas", {
+      method: "POST",
+      body: JSON.stringify({
+        fields: {
+          Cliente: [cliente.id],
           Servicio: servicio,
           Fecha: fecha,
           Hora: hora,
